@@ -72,7 +72,40 @@ export async function signup(req, res) {
 }
 
 export async function login(req, res) {
-  res.send("LogIn Route");
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res
+        .status(400)
+        .json({ success: false, message: "All Fields Are Required!" });
+    }
+
+    const user = await User.findOne({ email: email });
+    if (!user) {
+      return res
+        .status(404)
+        .json({ status: false, message: "Invalid Email or Password!" });
+    }
+
+    const isPasswordCorrect = await bcryptjs.compare(password, user.password);
+    if (!isPasswordCorrect) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid Email or Password!" });
+    }
+
+    generateTokenAndSetCookie(user._id, res);
+
+    res
+      .status(200)
+      .json({ success: true, user: { ...user._doc, password: " " } });
+  } catch (error) {
+    console.log("Error in Login Controller: ", error.message);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal Server Error!" });
+  }
 }
 
 export async function logout(req, res) {
@@ -80,7 +113,7 @@ export async function logout(req, res) {
     res.clearCookie("jwt-netflix");
     return res
       .status(200)
-      .json({ success: true, message: "Successfully Logged Out!" });  
+      .json({ success: true, message: "Successfully Logged Out!" });
   } catch (error) {
     console.log("Error in LogOut Controller: ", error.message);
     return res
