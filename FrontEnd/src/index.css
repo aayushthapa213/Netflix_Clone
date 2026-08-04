@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+.hero-bg {
+	background-image: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.1)), url("/hero.png");
+}
 /* react-hot-toast for notification
 lucide react for icons
 react-player for youtube video
